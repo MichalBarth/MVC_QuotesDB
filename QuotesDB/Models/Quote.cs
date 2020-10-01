@@ -12,7 +12,7 @@ namespace QuotesDB.Models
         [Key]
         public int Id { get; set; }
         public string Text { get; set; }
-        public string Date { get; set; }
+        public DateTime Date { get; set; }
 
         [JsonIgnore]
         public ICollection<TagQuote> TagQuotes { get; set; }
