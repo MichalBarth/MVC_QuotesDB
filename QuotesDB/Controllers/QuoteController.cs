@@ -52,9 +52,12 @@ namespace QuotesDB.Controllers
         // DELETE api/<QuoteController>/5
         // delete quote with id 5
         [HttpDelete("{id?}")]
-        public IActionResult<Quote> Delete(int id)
+        public ActionResult<Quote> Delete(int id)
         {
-            return _db.Remove(_db.Quotes.Single(x => x.Id == id));
+            var temp = _db.Quotes.Single(x => x.Id == id);
+            _db.Quotes.Remove(temp);
+            _db.SaveChanges();
+            return temp;
         }
 
         // POST api/<QuoteController/5/tags>
@@ -70,8 +73,8 @@ namespace QuotesDB.Controllers
         [HttpGet("{id}/tags")]
         public ActionResult<IEnumerable<Tag>> GetTags(int id)
         {
-            var qt = _db.TagQuotes.SingleOrDefault(x => x.Id == id);
-            /*return _db.Tags.Where(g => g.TagQuotes == qt);*/
+            var temp = _db.Quotes.Where(x => x.Id == id).Include(t => t.TagQuotes).ThenInclude(g => g.Tag);
+            //return ...;
         }
     }
 }
