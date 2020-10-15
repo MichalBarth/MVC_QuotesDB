@@ -46,7 +46,7 @@ namespace QuotesDB.Controllers
         [HttpGet("{id}")]
         public ActionResult<Quote> Get(int id)
         {
-            return _db.Quotes.SingleOrDefault(x => x.Id == id);
+            return _db.Quotes.Find(id);
         }
 
         // DELETE api/<QuoteController>/5
@@ -54,7 +54,8 @@ namespace QuotesDB.Controllers
         [HttpDelete("{id?}")]
         public ActionResult<Quote> Delete(int id)
         {
-            var temp = _db.Quotes.Single(x => x.Id == id);
+            //var temp = _db.Quotes.Single(x => x.Id == id);
+            var temp = _db.Quotes.Find(id);
             _db.Quotes.Remove(temp);
             _db.SaveChanges();
             return temp;
@@ -63,7 +64,15 @@ namespace QuotesDB.Controllers
         // POST api/<QuoteController/5/tags>
         // link new tags with quote 5
         [HttpPost("{id}/tags")]
-        public ActionResult<IEnumerable<Tag>> Insert([FromBody] IEnumerable<int> tagIds)
+        public ActionResult<IEnumerable<Tag>> InsertTags([FromBody] IEnumerable<int> tagIds)
+        {
+
+        }
+
+        // DELETE api/<QuoteController/5/tags>
+        // unlink tags connected with quote 5
+        [HttpDelete("{id}/tags")]
+        public ActionResult<IEnumerable<Tag>> DeleteTags(int id, [FromBody] IEnumerable<int> tagIds)
         {
 
         }
