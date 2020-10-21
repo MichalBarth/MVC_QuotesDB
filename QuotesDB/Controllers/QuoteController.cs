@@ -13,6 +13,7 @@ namespace QuotesDB.Controllers
     {
         private Random random;
         private ApplicationDbContext _db;
+        private List<Tag> tags;
 
         public QuoteController(ApplicationDbContext db)
         {
@@ -50,7 +51,11 @@ namespace QuotesDB.Controllers
         [HttpGet("{id}")]
         public ActionResult<Quote> Get(int id)
         {
-            return _db.Quotes.Find(id);
+            if (_db.Quotes.Contains(new Quote { Id = id })) return _db.Quotes.Find(id);
+            else
+            {
+                return NotFound();
+            }
         }
 
         // DELETE api/<QuoteController>/5
@@ -58,26 +63,59 @@ namespace QuotesDB.Controllers
         [HttpDelete("{id?}")]
         public ActionResult<Quote> Delete(int id)
         {
-            var temp = _db.Quotes.Find(id);
-            _db.Quotes.Remove(temp);
-            _db.SaveChanges();
-            return Success();
+            if (_db.Quotes.Contains(new Quote { Id = id }))
+            {
+                var temp = _db.Quotes.Find(id);
+                _db.Quotes.Remove(temp);
+                _db.SaveChanges();
+                return Success();
+            } else
+            {
+                return NotFound();
+            }
         }
 
         // POST api/<QuoteController/5/tags>
         // link new tags with quote 5
         [HttpPost("{id}/tags")]
-        public ActionResult<IEnumerable<Tag>> InsertTags([FromBody] IEnumerable<int> tagIds)
+        public ActionResult<IEnumerable<Tag>> InsertTags([FromBody] IEnumerable<int> tagIds, int id)
         {
-
+            if (_db.Quotes.Contains(new Quote { Id = id }))
+            {
+                //select vybraného citátu
+                var quote = _db.Quotes.Find(id);
+                foreach (var i in tagIds)
+                {
+                    //pro každý tag s id vybraném v IEnumerable se vytvoří vazba s quote
+                    var tag = _db.Tags.Find(i);
+                    _db.TagQuotes.Add(new TagQuote { Quote = quote, Tag = tag });
+                }
+                _db.SaveChanges();
+                return Success();
+            } else
+            {
+                return NotFound();
+            }
         }
 
         // DELETE api/<QuoteController/5/tags>
         // unlink tags connected with quote 5
         [HttpDelete("{id}/tags")]
-        public ActionResult<IEnumerable<Tag>> DeleteTags(int id, [FromBody] IEnumerable<int> tagIds)
+        public ActionResult<IEnumerable<Tag>> DeleteTags([FromBody] IEnumerable<int> tagIds, int id)
         {
-
+            if (_db.Quotes.Contains(new Quote { Id = id}))
+            {
+                foreach (var i in tagIds)
+                {
+                    var tagQuote = _db.TagQuotes.Find(i);
+                    _db.TagQuotes.Remove(_db.TagQuotes.Where(x => x.QuoteId == id).SingleOrDefault(x => x.Tag == tag));
+                }
+                _db.SaveChanges();
+                return Success();
+            } else
+            {
+                return NotFound();
+            }
         }
 
         // GET api/<QuoteController/5/tags>
@@ -85,8 +123,21 @@ namespace QuotesDB.Controllers
         [HttpGet("{id}/tags")]
         public ActionResult<IEnumerable<Tag>> GetTags(int id)
         {
-            var temp = _db.Quotes.Where(x => x.Id == id).Include(t => t.TagQuotes).ThenInclude(g => g.Tag);
-            //return ...;
+            if (_db.Quotes.Contains(new Quote { Id = id }))
+            {
+                var quote = _db.Quotes.Include(t => t.TagQuotes).SingleOrDefault(x => x.Id == id);
+                tags = new List<Tag>();
+
+                foreach (var i in quote.TagQuotes)
+                {
+                    //přidání vybraných tagů, obsažených ve "variable quote" obsahující vazby do listu
+                    tags.Add(i.Tag);
+                }
+                return tags;
+            } else
+            {
+                return NotFound();
+            }
         }
     }
 }
