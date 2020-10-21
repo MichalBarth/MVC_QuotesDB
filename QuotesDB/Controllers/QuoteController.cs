@@ -11,15 +11,12 @@ namespace QuotesDB.Controllers
 {
     public class QuoteController
     {
-        Random random = new Random();
+        private Random random;
         private ApplicationDbContext _db;
-        private int NumberOfQuotes;
 
         public QuoteController(ApplicationDbContext db)
         {
             _db = db;
-
-            NumberOfQuotes = _db.Quotes.Count();
         }
 
         // GET api/<QuoteController>
@@ -27,8 +24,11 @@ namespace QuotesDB.Controllers
         [HttpGet]
         public ActionResult<Quote> Get()
         {
-            int temp = random.Next(0, NumberOfQuotes + 1);
-            return _db.Quotes.SingleOrDefault(x => x.Id == temp);
+            random = new Random();
+            int num = _db.Quotes.Count();
+            int randomNum = random.Next(0, num + 1);
+
+            return _db.Quotes.Find(randomNum);
         }
 
         // POST api/<QuoteController>
@@ -36,9 +36,13 @@ namespace QuotesDB.Controllers
         [HttpPost]
         public ActionResult<Quote> Insert([FromBody] Quote value)
         {
-            _db.Quotes.Add(value);
-            _db.SaveChanges();
-            return value;
+            if (value == null) return NotFound();
+            else
+            {
+                _db.Quotes.Add(value);
+                _db.SaveChanges();
+                return value;
+            }
         }
 
         // GET api/<QuoteController/5>
@@ -54,11 +58,10 @@ namespace QuotesDB.Controllers
         [HttpDelete("{id?}")]
         public ActionResult<Quote> Delete(int id)
         {
-            //var temp = _db.Quotes.Single(x => x.Id == id);
             var temp = _db.Quotes.Find(id);
             _db.Quotes.Remove(temp);
             _db.SaveChanges();
-            return temp;
+            return Success();
         }
 
         // POST api/<QuoteController/5/tags>
