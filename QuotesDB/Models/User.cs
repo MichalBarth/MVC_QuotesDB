@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace QuotesDB.Models
 {
-    public enum Category
+    public class User
     {
-        Author,
-        Genre,
-        Description
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }

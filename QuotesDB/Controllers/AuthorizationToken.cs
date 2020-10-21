@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace QuotesDB.Models
+namespace QuotesDB.Controllers
 {
-    public enum Category
+    public class AuthorizationToken
     {
-        Author,
-        Genre,
-        Description
+        public string AccessToken { get; set; }
     }
 }

@@ -6,10 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
+using System.Security.Cryptography.X509Certificates;
 
 namespace QuotesDB.Controllers
 {
-    public class QuoteController
+    [Route("api/[controller]")]
+    [ApiController]
+    public class QuoteController : ControllerBase
     {
         private Random random;
         private ApplicationDbContext _db;
@@ -68,7 +72,7 @@ namespace QuotesDB.Controllers
                 var temp = _db.Quotes.Find(id);
                 _db.Quotes.Remove(temp);
                 _db.SaveChanges();
-                return Success();
+                return Accepted();
             } else
             {
                 return NotFound();
@@ -91,7 +95,7 @@ namespace QuotesDB.Controllers
                     _db.TagQuotes.Add(new TagQuote { Quote = quote, Tag = tag });
                 }
                 _db.SaveChanges();
-                return Success();
+                return Accepted();
             } else
             {
                 return NotFound();
@@ -107,11 +111,11 @@ namespace QuotesDB.Controllers
             {
                 foreach (var i in tagIds)
                 {
-                    var tagQuote = _db.TagQuotes.Find(i);
+                    var tag = _db.Tags.Find(i);
                     _db.TagQuotes.Remove(_db.TagQuotes.Where(x => x.QuoteId == id).SingleOrDefault(x => x.Tag == tag));
                 }
                 _db.SaveChanges();
-                return Success();
+                return Accepted();
             } else
             {
                 return NotFound();
